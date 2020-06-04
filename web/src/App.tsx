@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 
-import Home from './pages/Home/index';
+import Routes from './routes';
 
 function App() {
 
   return (
-    <Home />
+    <Routes />
   );
 }
 
