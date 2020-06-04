@@ -24,8 +24,6 @@ class PointsController {
   async show (request: Request, response: Response) {
     const { id } = request.params;
 
-    console.log(id);
-
     const point = await knex('points').where('id', id).first();
 
     if (!point) {
@@ -46,7 +44,7 @@ class PointsController {
       email,
       whatsapp,
       image,
-      latitute,
+      latitude,
       longitude,
       city,
       uf,
@@ -56,11 +54,12 @@ class PointsController {
     const trx = await knex.transaction();
 
     const point = {
-      image,
+      //image,
+      image: 'image-fake',
       name,
       email,
       whatsapp,
-      latitute,
+      latitude,
       longitude,
       city,
       uf,

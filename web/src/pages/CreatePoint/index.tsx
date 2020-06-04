@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { FiArrowLeft } from "react-icons/fi";
 import { Link } from 'react-router-dom';
 import { Map, TileLayer, Marker } from 'react-leaflet';
@@ -43,7 +43,7 @@ interface IBGECidade {
 
 const CreatePoint = () => {
   const [items, setItems] = useState<Item[]>([]);
-  const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
+  const [initialPosition, setInitialPosition] = useState<[number, number]>([-23.4039747,-51.4414278]);
 
   const [Ufs, setUfs] = useState<string[]>([]);
   const [Cities, setCities] = useState<string[]>([]);
@@ -59,9 +59,10 @@ const CreatePoint = () => {
   const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
+    // Revisar para o firefox
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = position.coords;
-      setInitialPosition([latitude, longitude]);
+      // setInitialPosition([latitude, longitude]);
     })
   }, []);
 
@@ -127,6 +128,33 @@ const CreatePoint = () => {
     }
   }
 
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    const { name, email, whatsapp } = formData;
+    const uf = selectedUf;
+    const city = selectedCity;
+    const [latitude, longitude] = selectedPosition;
+    const items = selectedItems;
+
+    const data = {
+      name,
+      email,
+      whatsapp,
+      uf,
+      city,
+      latitude,
+      longitude,
+      items
+    };
+
+    console.log(data);
+
+    await api.post('points', data);
+
+    alert('Ponto de coleta criado!');
+  }
+
   return (
     <div id="page-create-point">
       <header>
@@ -138,7 +166,8 @@ const CreatePoint = () => {
         </Link>
       </header>
 
-      <form action="">
+      <form onSubmit={handleSubmit}>
+        
         <h1>Cadastro do <br/> ponto de coleta</h1>
 
         <fieldset>
@@ -220,6 +249,8 @@ const CreatePoint = () => {
           </ul>
 
         </fieldset>
+        
+        <button type="submit">Cadastrar ponto de coleta</button>
 
       </form>
     </div>
