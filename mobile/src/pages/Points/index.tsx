@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ImageBackground, Image, Text } from 'react-native';
+import Constants from 'expo-constants';
 
 const Points = () => {
   return <View />;

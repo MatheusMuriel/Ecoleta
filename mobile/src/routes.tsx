@@ -8,10 +8,11 @@ import Detail from "./pages/Detail";
 
 const AppStack = createStackNavigator();
 
+// <AppStack.Navigator headerMode="none" >
 const Routes = () => {
   return (
     <NavigationContainer>
-      <AppStack.Navigator headerMode="none" >
+      <AppStack.Navigator headerMode="none">
         <AppStack.Screen name="Home" component={Home} />
         <AppStack.Screen name="Points" component={Points} />
         <AppStack.Screen name="Detail" component={Detail} />
