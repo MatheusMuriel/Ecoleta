@@ -1,17 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Feather as Icon } from '@expo/vector-icons';
-import { StyleSheet, View, ImageBackground, Image, Text, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, ImageBackground, Image, Text, TextInput, Picker, KeyboardAvoidingView, Platform } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import RNPickerSelect from "react-native-picker-select";
+import axios from 'axios';
+
+interface IBGEUF {
+  id: number;
+  nome: string;
+  sigla: string;
+  regiao: {
+    id: number;
+    nome: string;
+    sigla: string;
+  }
+}
+
+interface IBGECidade {
+  id: number;
+  nome: string;
+  microrregiao: {
+    id: number;
+    nome: string;
+    mesorregiao: {
+      id: number;
+      nome: string;
+      UF: IBGEUF;
+    }
+  }
+}
 
 const Home = () => {
-  const [uf, setUf] = useState('');
-  const [city, setCity] = useState('');
+  const [Ufs, setUfs] = useState<IBGEUF[]>([]);
+  const [Cities, setCities] = useState<IBGECidade[]>([]);
+
+  const [selectedUf, setSelectedUf] = useState('0');
+  const [selectedCity, setSelectedCity] = useState('0');
 
   const navigation = useNavigation();
 
+  useEffect(() => {
+    axios
+      .get<IBGEUF[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+        .then(response => {
+          setUfs(response.data.sort((uf1, uf2) => { return (uf1.nome > uf2.nome) ? 1 : -1 }));
+        })
+  }, []);
+
+  useEffect(() => {
+    if (selectedUf === '0') {
+      return;
+    }
+
+    axios
+      .get<IBGECidade[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`)
+        .then(response => {
+          setCities(response.data);
+        })
+  }, [selectedUf]);
+
+  function handleSelectUf(uf: string) {
+    //const uf = event.target.value; 
+    setSelectedUf(uf);
+  }
+
+  function handleSelectCity(city: string) {
+    //const city = event.target.value; 
+    setSelectedCity(city);
+  }
+
   function handleNavigateToPoints() {
-    navigation.navigate('Points', { uf: uf, city: city});
+    navigation.navigate('Points', { uf: selectedUf, city: selectedCity});
   }
 
   return (
@@ -30,22 +90,46 @@ const Home = () => {
         </View>
 
         <View style={styles.footer}>
-          <TextInput 
-            style={styles.input} 
-            placeholder="Digite a UF" 
-            onChangeText={setUf}
-            value={uf} 
-            maxLength={2}
-            autoCapitalize="characters"
-            autoCorrect={false}
-          ></TextInput>
-          <TextInput 
-            style={styles.input} 
-            placeholder="Digite a cidade" 
-            onChangeText={setCity}
-            value={city} 
-            autoCorrect={false}
-          ></TextInput>
+          {console.log(Ufs)}
+          <RNPickerSelect
+            placeholder={{ label: 'Selecione a UF' }}
+            style={{ 
+              inputAndroid: styles.picker,
+              iconContainer: {
+                top: 15,
+                right: 15,
+              },
+            }}
+            useNativeAndroidPickerStyle={false}
+            Icon={() => (<Icon name="chevron-down" color="#A0A0B2" size={24} />)}
+            onValueChange={value => setSelectedUf(value)}
+            items={Ufs.map(uf => {
+              return {
+                label: uf.nome,
+                value: uf.sigla
+              }
+            })}
+          />
+
+          <RNPickerSelect
+            placeholder={{ label: 'Selecione a cidade' }}
+            style={{ 
+              inputAndroid: styles.picker,
+              iconContainer: {
+                top: 15,
+                right: 15,
+              },
+            }}
+            useNativeAndroidPickerStyle={false}
+            Icon={() => (<Icon name="chevron-down" color="#A0A0B2" size={24} />)}
+            onValueChange={value => setSelectedCity(value)}
+            items={Cities.map(city => {
+              return {
+                label: city.nome,
+                value: city.nome
+              }
+            })}
+          />
 
           <RectButton style={styles.button} onPress={handleNavigateToPoints} >
             <View style={styles.buttonIcon}>
@@ -93,7 +177,20 @@ const styles = StyleSheet.create({
 
   footer: {},
 
-  select: {},
+  picker: {
+    height: 60,
+    backgroundColor: '#FFF',
+    color: '#666',
+    borderRadius: 10,
+    marginBottom: 8,
+    paddingHorizontal: 24,
+    fontSize: 16,
+  },
+
+  select: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+  },
 
   input: {
     height: 60,
