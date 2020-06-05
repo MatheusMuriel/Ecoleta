@@ -1,48 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from "react-native-maps";
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, SafeAreaView } from 'react-native';
 import { SvgUri } from "react-native-svg";
+import api from "../../services/api";
 
+interface Item {
+  id: number;
+  title: string;
+  image_url: string;
+}
 
 const Points = () => {
-  /** Temporariamente */
-  const itemsJson = [
-    {
-      "id": 1,
-      "title": "Lâmpadas",
-      "image_url": "http://192.168.0.108:3333/uploads/lampadas.svg"
-    },
-    {
-      "id": 2,
-      "title": "Pilhas e baterias",
-      "image_url": "http://192.168.0.108:3333/uploads/baterias.svg"
-    },
-    {
-      "id": 3,
-      "title": "Papéis e Papelão",
-      "image_url": "http://192.168.0.108:3333/uploads/papeis-papelao.svg"
-    },
-    {
-      "id": 4,
-      "title": "Resíduos Eletrônicos",
-      "image_url": "http://192.168.0.108:3333/uploads/eletronicos.svg"
-    },
-    {
-      "id": 5,
-      "title": "Resíduos Orgânicos",
-      "image_url": "http://192.168.0.108:3333/uploads/organicos.svg"
-    },
-    {
-      "id": 6,
-      "title": "Óleo de Cozinha",
-      "image_url": "http://192.168.0.108:3333/uploads/oleo.svg"
-    }
-  ]
-  /** Temporariamente */
-
+  const [items, setItems] = useState<Item[]>([]);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    api.get('items').then(response => {
+      setItems(response.data);
+    });
+  }, []);
 
   function handleNavigateToHome() {
     navigation.navigate('Home');
@@ -54,6 +33,18 @@ const Points = () => {
 
   function handleNavigateToDetail() {
     navigation.navigate('Detail');
+  }
+
+  function handleSelectItem(id: number) {
+    const alreadySelected = selectedItems.findIndex(item => item === id);
+
+    if (alreadySelected >= 0) {
+      const filteredItems = selectedItems.filter(item => item !== id);
+
+      setSelectedItems(filteredItems);
+    } else {
+      setSelectedItems([ ...selectedItems, id ]);
+    }
   }
 
   return (
@@ -101,13 +92,19 @@ const Points = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20 }}
         >
-          {itemsJson.map(item => (
-            <>
-              <TouchableOpacity key={item.id} style={styles.item} onPress={handleMap} >
-                <SvgUri width={42} height={42} uri={item.image_url} />
-                <Text style={styles.itemTitle}>{item.title}</Text>
-              </TouchableOpacity>
-            </>
+          {items.map(item => (
+            <TouchableOpacity 
+              key={String(item.id)} 
+              style={[
+                styles.item,
+                selectedItems.includes(item.id) ? styles.selectedItem : {}
+              ]}
+              onPress={() => handleSelectItem(item.id)}
+              activeOpacity={0.7}
+            >
+              <SvgUri width={42} height={42} uri={item.image_url} />
+              <Text style={styles.itemTitle}>{item.title}</Text>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
