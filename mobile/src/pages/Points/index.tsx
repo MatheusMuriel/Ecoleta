@@ -1,9 +1,90 @@
 import React from 'react';
-import { StyleSheet, View, ImageBackground, Image, Text } from 'react-native';
 import Constants from 'expo-constants';
+import { Feather as Icon } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import MapView from "react-native-maps";
+import { SvgUri } from "react-native-svg";
+
 
 const Points = () => {
-  return <View />;
+  /** Temporariamente */
+  const itemsJson = [
+    {
+      "id": 1,
+      "title": "Lâmpadas",
+      "image_url": "http://192.168.0.108:3333/uploads/lampadas.svg"
+    },
+    {
+      "id": 2,
+      "title": "Pilhas e baterias",
+      "image_url": "http://192.168.0.108:3333/uploads/baterias.svg"
+    },
+    {
+      "id": 3,
+      "title": "Papéis e Papelão",
+      "image_url": "http://192.168.0.108:3333/uploads/papeis-papelao.svg"
+    },
+    {
+      "id": 4,
+      "title": "Resíduos Eletrônicos",
+      "image_url": "http://192.168.0.108:3333/uploads/eletronicos.svg"
+    },
+    {
+      "id": 5,
+      "title": "Resíduos Orgânicos",
+      "image_url": "http://192.168.0.108:3333/uploads/organicos.svg"
+    },
+    {
+      "id": 6,
+      "title": "Óleo de Cozinha",
+      "image_url": "http://192.168.0.108:3333/uploads/oleo.svg"
+    }
+  ]
+  /** Temporariamente */
+
+  const navigation = useNavigation();
+
+  function handleNavigateToHome() {
+    navigation.navigate('Home');
+  }
+
+  function handleMap() {
+    //navigation.navigate('Home');
+  }
+
+  return (
+    <>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={handleNavigateToHome} >
+          <Icon name="arrow-left" size={20} color="#34cb79" />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Bem vindo.</Text>
+        <Text style={styles.description}>Encontre no mapa um ponto de coleta.</Text>
+
+        <View style={styles.mapContainer}>
+          <MapView style={styles.map} />
+        </View>
+      </View>
+      <View style={styles.itemsContainer}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
+        >
+          {itemsJson.map( item => (
+            <>
+              <TouchableOpacity style={styles.item} onPress={handleMap} >
+                <SvgUri width={42} height={42} uri={item.image_url} />
+                <Text style={styles.itemTitle}>{item.title}</Text>
+              </TouchableOpacity>
+            </>
+          ) )}
+        </ScrollView>
+      </View>
+    </>
+  )
 };
 
 const styles = StyleSheet.create({
