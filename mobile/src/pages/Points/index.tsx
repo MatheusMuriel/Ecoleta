@@ -1,9 +1,9 @@
 import React from 'react';
 import Constants from 'expo-constants';
+import MapView, { Marker } from "react-native-maps";
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import MapView from "react-native-maps";
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SvgUri } from "react-native-svg";
 
 
@@ -53,6 +53,10 @@ const Points = () => {
     //navigation.navigate('Home');
   }
 
+  function handleNavigateToDetail() {
+    navigation.navigate('Detail');
+  }
+
   return (
     <>
       <View style={styles.container}>
@@ -64,7 +68,32 @@ const Points = () => {
         <Text style={styles.description}>Encontre no mapa um ponto de coleta.</Text>
 
         <View style={styles.mapContainer}>
-          <MapView style={styles.map} />
+          <MapView 
+            style={styles.map} 
+            initialRegion={{
+              latitude: -23.4039747,
+              longitude: -51.4414278,
+              latitudeDelta: 0.014, // Calculo nautico da deepweb
+              longitudeDelta: 0.014
+            }}
+          >
+            <Marker 
+              style={styles.mapMarker}
+              onPress={handleNavigateToDetail}
+              coordinate={{
+                latitude: -23.4039747,
+                longitude: -51.4414278,
+              }} 
+            >
+              <View style={styles.mapMarkerContainer}>
+                <Image 
+                  style={styles.mapMarkerImage}
+                  source={{ uri: 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60' }} 
+                ></Image>
+                <Text style={styles.mapMarkerTitle}>Mercado</Text>
+              </View>
+            </Marker>
+          </MapView>
         </View>
       </View>
       <View style={styles.itemsContainer}>
@@ -73,14 +102,14 @@ const Points = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20 }}
         >
-          {itemsJson.map( item => (
+          {itemsJson.map(item => (
             <>
-              <TouchableOpacity style={styles.item} onPress={handleMap} >
+              <TouchableOpacity key={item.id} style={styles.item} onPress={handleMap} >
                 <SvgUri width={42} height={42} uri={item.image_url} />
                 <Text style={styles.itemTitle}>{item.title}</Text>
               </TouchableOpacity>
             </>
-          ) )}
+          ))}
         </ScrollView>
       </View>
     </>
