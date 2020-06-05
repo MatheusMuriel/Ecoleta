@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from "react-native-maps";
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, SafeAreaView, Alert } from 'react-native';
 import { SvgUri } from "react-native-svg";
+import * as Location from 'expo-location';
 import api from "../../services/api";
 
 interface Item {
@@ -12,10 +13,65 @@ interface Item {
   image_url: string;
 }
 
+interface Point {
+  point: {
+    id: number,
+    image: string,
+    name: string,
+    email: string,
+    whatsapp: string,
+    latitude: Float32Array,
+    longitude: Float32Array,
+    city: string,
+    uf: string
+  },
+  items: Item[]
+}
+
 const Points = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+
+  const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
+
+  const [points, setPoints] = useState<Point[]>([]);
+
   const navigation = useNavigation();
+
+  useEffect(() => {
+    async function loadPosition() {
+      const { status } = await Location.requestPermissionsAsync();
+    
+      if (status !== 'granted') {
+        Alert.alert('Ooooops...', 'Precisamos da sua permissão para obter a localização');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync();
+
+      const { latitude, longitude } = location.coords;
+
+      setInitialPosition([
+        latitude, 
+        longitude
+      ]);
+    }
+
+    loadPosition();
+  }, []);
+
+  useEffect(() => {
+    api.get('points', {
+      params: {
+        city: 'Arapongas',
+        uf: 'PR',
+        items: [1, 2]
+      }
+    }).then(response => {
+      console.log(response.data);
+      setPoints(response.data);
+    });
+  }, []);
 
   useEffect(() => {
     api.get('items').then(response => {
@@ -58,32 +114,35 @@ const Points = () => {
         <Text style={styles.description}>Encontre no mapa um ponto de coleta.</Text>
 
         <View style={styles.mapContainer}>
-          <MapView 
-            style={styles.map} 
-            initialRegion={{
-              latitude: -23.4039747,
-              longitude: -51.4414278,
-              latitudeDelta: 0.014, // Calculo nautico da deepweb
-              longitudeDelta: 0.014
-            }}
-          >
-            <Marker 
-              style={styles.mapMarker}
-              onPress={handleNavigateToDetail}
-              coordinate={{
-                latitude: -23.4039747,
-                longitude: -51.4414278,
-              }} 
+          { initialPosition[0] !== 0 && (
+            <MapView 
+              style={styles.map} 
+              loadingEnabled={true}
+              initialRegion={{
+                latitude: initialPosition[0],
+                longitude: initialPosition[1],
+                latitudeDelta: 0.014, // Calculo nautico da deepweb
+                longitudeDelta: 0.014
+              }}
             >
-              <View style={styles.mapMarkerContainer}>
-                <Image 
-                  style={styles.mapMarkerImage}
-                  source={{ uri: 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60' }} 
-                ></Image>
-                <Text style={styles.mapMarkerTitle}>Mercado</Text>
-              </View>
-            </Marker>
-          </MapView>
+              <Marker 
+                style={styles.mapMarker}
+                onPress={handleNavigateToDetail}
+                coordinate={{
+                  latitude: -23.4039747,
+                  longitude: -51.4414278,
+                }} 
+              >
+                <View style={styles.mapMarkerContainer}>
+                  <Image 
+                    style={styles.mapMarkerImage}
+                    source={{ uri: 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60' }} 
+                  ></Image>
+                  <Text style={styles.mapMarkerTitle}>Mercado</Text>
+                </View>
+              </Marker>
+            </MapView>
+          ) }
         </View>
       </View>
       <View style={styles.itemsContainer}>
