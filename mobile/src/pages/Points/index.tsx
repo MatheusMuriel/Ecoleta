@@ -144,32 +144,40 @@ const Points = () => {
                   </View>
                 </Marker>
               ))}
-              {console.log(points)}
             </MapView>
           ) }
         </View>
       </View>
-      <View style={styles.itemsContainer}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20 }}
-        >
-          {items.map(item => (
-            <TouchableOpacity 
-              key={String(item.id)} 
-              style={[
-                styles.item,
-                selectedItems.includes(item.id) ? styles.selectedItem : {}
-              ]}
-              onPress={() => handleSelectItem(item.id)}
-              activeOpacity={0.7}
-            >
-              <SvgUri width={42} height={42} uri={item.image_url} />
-              <Text style={styles.itemTitle}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+
+      <View style={styles.itemsblock}>
+        { 
+          !selectedItems[0]
+          ? <Text style={styles.ajuda}>*Selecione algum item para filtrar.</Text>
+          : undefined
+        }
+
+        <View style={styles.itemsContainer}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+          >
+            {items.map(item => (
+              <TouchableOpacity 
+                key={String(item.id)} 
+                style={[
+                  styles.item,
+                  selectedItems.includes(item.id) ? styles.selectedItem : {}
+                ]}
+                onPress={() => handleSelectItem(item.id)}
+                activeOpacity={0.7}
+              >
+                <SvgUri width={42} height={42} uri={item.image_url} />
+                <Text style={styles.itemTitle}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </View>
     </SafeAreaView>
   )
@@ -189,6 +197,14 @@ const styles = StyleSheet.create({
   },
 
   description: {
+    color: '#6C6C80',
+    fontSize: 16,
+    marginTop: 4,
+    fontFamily: 'Roboto_400Regular',
+  },
+
+  ajuda: {
+    paddingHorizontal: 24,
     color: '#6C6C80',
     fontSize: 16,
     marginTop: 4,
@@ -237,10 +253,15 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
 
-  itemsContainer: {
-    flexDirection: 'row',
+  itemsblock: {
+    flexDirection: 'column',
     marginTop: 16,
     marginBottom: 32,
+  },
+
+  itemsContainer: {
+    flexDirection: 'row',
+    marginTop: 4,
   },
 
   item: {

@@ -35,16 +35,26 @@ class PointsController {
   async show (request: Request, response: Response) {
     const { id } = request.params;
 
-    const point = await knex('points').where('id', id).first();
+    const _point = await knex('points').where('id', id).first();
 
-    if (!point) {
+    if (!_point) {
       return response.status(400).json({ message: 'Point not found.' });
     }
 
     const items = await knex('items')
-      .join('point_items', 'item_id', '=', 'point_items.item_id')
+      .join('point_items', 'items.id', '=', 'point_items.item_id')
       .where('point_items.point_id', id)
       .select('items.title');
+
+    // Temporariamente deixar o endereço local, 
+    // dps trocar para as confs de ambiente
+    const enderecoLocal = '192.168.0.108';
+
+    const point = {
+      ..._point,
+      image_url: `http://${enderecoLocal}:3333/uploads/${_point.image}`
+    }
+
 
     return response.json({ point, items });
   }

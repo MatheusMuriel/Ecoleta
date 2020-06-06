@@ -90,7 +90,6 @@ const Home = () => {
         </View>
 
         <View style={styles.footer}>
-          {console.log(Ufs)}
           <RNPickerSelect
             placeholder={{ label: 'Selecione a UF' }}
             style={{ 

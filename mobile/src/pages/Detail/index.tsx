@@ -75,12 +75,12 @@ const Detail = () => {
         </Text>
 
         <View style={styles.address}>
-          <Text style={styles.addressTitle}>Endereço</Text>
-          <Text style={styles.addressContent}>{data.point.city}, {data.point.uf}</Text>
+          <Text style={styles.addressTitle}>Cidade</Text>
+          <Text style={styles.addressContent}>{data.point.city} - {data.point.uf}</Text>
         </View>
 
         <View style={styles.footer}>
-          <RectButton style={styles.button} onPress={() => {}}>
+          <RectButton style={styles.button} onPress={handleWhatsApp}>
             <FontAwesome name="whatsapp" size={20} color="#FFF" />
             <Text style={styles.buttonText}>Whatsapp</Text>
           </RectButton>
