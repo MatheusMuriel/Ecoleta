@@ -18,7 +18,18 @@ class PointsController {
       .distinct()
       .select('points.*');
 
-    return response.json(points);
+    // Temporariamente deixar o endereço local, 
+    // dps trocar para as confs de ambiente
+    const enderecoLocal = '192.168.0.108';
+
+    const serializedItems = points.map( point => {
+      return {
+        ...point,
+        image_url: `http://${enderecoLocal}:3333/uploads/${point.image}`
+      }
+    });
+
+    return response.json(serializedItems);
   }
 
   async show (request: Request, response: Response) {
@@ -43,7 +54,6 @@ class PointsController {
       name,
       email,
       whatsapp,
-      image,
       latitude,
       longitude,
       city,
@@ -54,8 +64,7 @@ class PointsController {
     const trx = await knex.transaction();
 
     const point = {
-      //image,
-      image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=667&q=80',
+      image: request.file.filename,
       name,
       email,
       whatsapp,
@@ -69,12 +78,14 @@ class PointsController {
   
     const point_id = insertedIds[0];
   
-    const pointItems = items.map((item_id: number) => {
-      return {
-        item_id,
-        point_id,
-      }
-    });
+    const pointItems = items.split(',')
+      .map((item: string) => Number(item.trim()))
+      .map((item_id: number) => {
+        return {
+          item_id,
+          point_id,
+        }
+      });
   
     await trx('point_items').insert(pointItems);
     
