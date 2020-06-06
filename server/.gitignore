@@ -3,6 +3,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,visualstudiocode,vim
 
 database.sqlite
+uploads/*
+!uploads/.gitkeep
+!uploads/*.svg
 
 ### Node ###
 # Logs
